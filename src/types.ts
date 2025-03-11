@@ -24,8 +24,8 @@ export interface GameState {
   userAnswer: string;
   targetValue: number | null;
   turnCount: number;
-  cpuTarget: Ship | null;  // The ship that CPU is currently targeting
-  level: number;  // Current game level
+  cpuTarget: Coordinate | null;
+  level: number;
 }
 
 export interface Coordinate {
@@ -38,9 +38,13 @@ export interface CharacterConfig {
   assetUrl: string;
   color: string;
   dialogues?: {
-    hit: string[];
-    defeat: string[];
-    victory: string[];
+    hit?: string[];
+    defeat?: string[];
+    victory?: string[];
+    correctAnswer?: string[];
+    incorrectAnswer?: string[];
+    playerHit?: string[];
+    playerMiss?: string[];
   };
 }
 
@@ -53,11 +57,24 @@ export interface LevelConfig {
     player: number;
     cpu: number;
   };
+  boardSize: {
+    rows: number;
+    cols: number;
+  };
+}
+
+export interface MusicTrack {
+  id: string;
+  name: string;
+  url: string;
+  icon?: string;
 }
 
 export interface GameConfig {
   player: CharacterConfig;
   cpu: CharacterConfig;
+  sidekick: CharacterConfig;
   backgroundUrl: string;
   levels: LevelConfig[];
+  music: MusicTrack[];
 }

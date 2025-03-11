@@ -55,6 +55,81 @@ export const defaultGameConfig: GameConfig = {
         "Your search for energy sources was your downfall!",
         "Dark Hunter's strength was insufficient against our fleet!",
         "The stars themselves bow before our victory!"
+      ],
+      playerHit: [
+        "Impossible! How did you find our cloaked vessel?",
+        "A lucky shot, nothing more!",
+        "Our shields will regenerate, Asher!",
+        "You've merely scratched our hull!",
+        "Your primitive targeting systems shouldn't be this accurate!",
+        "One ship means nothing to our vast armada!",
+        "This changes nothing in the grand scheme of our conquest!",
+        "Your mathematical prowess is... unexpected.",
+        "Our fleet has weathered worse attacks!",
+        "A temporary setback in our glorious campaign!",
+        "Your calculations won't save you forever!",
+        "Enjoy this small victory while you can!"
+      ],
+      playerMiss: [
+        "Your targeting systems fail you, Asher!",
+        "Ha! Your calculations are as primitive as your ships!",
+        "The Mercada fleet is too advanced for your simple mathematics!",
+        "Your education system has failed you, space adventurer!",
+        "Even with Star Knight's help, your aim is pathetic!",
+        "The void of space swallows your futile attacks!",
+        "Perhaps you should reconsider your multiplication tables!",
+        "Your mathematical errors will be your downfall!",
+        "The Mercada empire laughs at your feeble attempts!",
+        "Not even close to our position! Your defeat is inevitable!",
+        "Your miscalculations please us greatly!",
+        "Dark Hunter's guidance seems to be failing you!"
+      ]
+    }
+  },
+  sidekick: {
+    name: "Star Knight",
+    assetUrl: "https://images.unsplash.com/photo-1614728263952-84ea256f9679?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80",
+    color: "#4CAF50",
+    dialogues: {
+      hit: [
+        "I'll protect our fleet at all costs!",
+        "Stand strong, Captain Asher!"
+      ],
+      defeat: [
+        "We'll regroup and fight another day!",
+        "This is just a temporary setback!"
+      ],
+      victory: [
+        "Victory for the Candor Alliance!",
+        "We've shown the Mercada our true strength!"
+      ],
+      correctAnswer: [
+        "Excellent shot, Captain Asher!",
+        "Your multiplication skills are impressive!",
+        "The Candor fleet's honor shines through your calculations!",
+        "That's how we do it in the Galactic Alliance!",
+        "Perfect targeting, just as we practiced!",
+        "The Mercada won't stand a chance against your mathematical prowess!",
+        "Your education on Candor Prime serves you well!",
+        "Rainwing Venom would be proud of your calculations!",
+        "Dark Hunter taught you well, Captain!",
+        "The energy sources will soon be ours with aim like that!",
+        "Keep up the precise calculations and we'll win this battle!",
+        "The stars align with your mathematical genius!"
+      ],
+      incorrectAnswer: [
+        "Don't worry, Captain! Recalculate and try again!",
+        "Even the best space navigators make errors sometimes!",
+        "Remember your training on Candor Prime, you can do this!",
+        "The Mercada's jamming signals are affecting our calculations!",
+        "Focus, Captain Asher! The fate of the galaxy depends on it!",
+        "Let's double-check our multiplication and try again!",
+        "Rainwing Venom always says to take a deep breath before recalculating!",
+        "The Galactic Alliance believes in you, even when you miss!",
+        "Dark Hunter faced similar challenges before becoming a legend!",
+        "The energy sources are still within our reach! Try again!",
+        "Your determination is what makes you a great captain!",
+        "One miscalculation won't define this battle! Let's try again!"
       ]
     }
   },
@@ -65,21 +140,44 @@ export const defaultGameConfig: GameConfig = {
       name: "Training Grounds",
       description: "Basic multiplication tables from 1-5",
       maxNumber: 25,
-      minShips: { player: 5, cpu: 4 }
+      minShips: { player: 5, cpu: 4 },
+      boardSize: { rows: 5, cols: 5 }
     },
     {
       id: 2,
       name: "Deep Space",
       description: "Advanced multiplication with numbers 1-7",
       maxNumber: 49,
-      minShips: { player: 5, cpu: 4 }
+      minShips: { player: 5, cpu: 4 },
+      boardSize: { rows: 5, cols: 10 }
     },
     {
       id: 3,
       name: "Galactic Core",
       description: "Master level multiplication with numbers 1-10",
       maxNumber: 100,
-      minShips: { player: 5, cpu: 4 }
+      minShips: { player: 5, cpu: 4 },
+      boardSize: { rows: 10, cols: 10 }
+    }
+  ],
+  music: [
+    {
+      id: "space-adventure",
+      name: "Space Adventure",
+      url: "/src/components/music1.mp3",
+      icon: "🚀"
+    },
+    {
+      id: "battle-theme",
+      name: "Battle Theme",
+      url: "/src/components/music2.mp3",
+      icon: "⚔️"
+    },
+    {
+      id: "cosmic-journey",
+      name: "Cosmic Journey",
+      url: "/src/components/music3.mp3",
+      icon: "🌌"
     }
   ]
 };

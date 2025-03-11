@@ -1,7 +1,9 @@
 import { Howl } from 'howler';
 
 const ELEVEN_LABS_API_KEY = import.meta.env.VITE_ELEVEN_LABS_API_KEY;
-const KRAVEN_VOICE_ID = 'TxGEqnHWrfWFTfGW9XjX';
+const KRAVEN_VOICE_ID = 'TxGEqnHWrfWFTfGW9XjX'; // Deep villain voice
+const NOVA_VOICE_ID = '21m00Tcm4TlvDq8ikWAM';   // Friendly sidekick voice
+
 const API_URL = 'https://api.elevenlabs.io/v1/text-to-speech';
 
 // Sound effects using Howler.js
@@ -48,6 +50,9 @@ const sounds = {
 let audioContext: AudioContext | null = null;
 let audioSource: AudioBufferSourceNode | null = null;
 
+// Background music handling
+let currentMusic: Howl | null = null;
+
 export const initAudio = () => {
   if (!audioContext) {
     audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -63,11 +68,15 @@ export const stopSound = (soundName: keyof typeof sounds) => {
   sounds[soundName].stop();
 };
 
-export const playKravenVoice = async (text: string) => {
+// Updated to support different voice IDs
+export const playVoice = async (text: string, voiceType: 'villain' | 'sidekick' = 'villain') => {
   if (!ELEVEN_LABS_API_KEY) {
     console.warn('Eleven Labs API key not found. Speech synthesis disabled.');
     return;
   }
+
+  // Select the appropriate voice ID based on the character type
+  const voiceId = voiceType === 'villain' ? KRAVEN_VOICE_ID : NOVA_VOICE_ID;
 
   try {
     const context = initAudio();
@@ -79,7 +88,7 @@ export const playKravenVoice = async (text: string) => {
       await context.resume();
     }
 
-    const response = await fetch(`${API_URL}/${KRAVEN_VOICE_ID}`, {
+    const response = await fetch(`${API_URL}/${voiceId}`, {
       method: 'POST',
       headers: {
         'Accept': 'audio/mpeg',
@@ -123,7 +132,77 @@ export const playKravenVoice = async (text: string) => {
       audioSource!.onended = () => resolve(true);
     });
   } catch (error) {
-    console.error('Error playing Kraven voice:', error);
+    console.error('Error playing voice:', error);
     throw error;
+  }
+};
+
+// Keep the old function for backward compatibility
+export const playKravenVoice = (text: string) => playVoice(text, 'villain');
+
+// Add a new function for the sidekick voice
+export const playSidekickVoice = (text: string) => playVoice(text, 'sidekick');
+
+export const playBackgroundMusic = (url: string, volume: number = 0.3) => {
+  // Initialize audio context if needed
+  if (audioContext && audioContext.state === 'suspended') {
+    audioContext.resume();
+  }
+
+  // Stop current music if playing
+  if (currentMusic) {
+    currentMusic.stop();
+  }
+  
+  // Create and play new music with proper error handling
+  try {
+    currentMusic = new Howl({
+      src: [url],
+      loop: true,
+      volume: volume,
+      html5: true,
+      onload: () => {
+        console.log('Music loaded successfully');
+      },
+      onplay: () => {
+        console.log('Music started playing');
+      },
+      onloaderror: (id, err) => {
+        console.error('Error loading music:', err);
+      },
+      onplayerror: (id, err) => {
+        console.error('Error playing music:', err);
+        
+        // Try to recover by forcing HTML5 Audio
+        const sound = currentMusic as any;
+        sound._html5 = true;
+        sound.load();
+        sound.play();
+      }
+    });
+    
+    currentMusic.play();
+  } catch (error) {
+    console.error('Failed to play background music:', error);
+  }
+};
+
+export const stopBackgroundMusic = () => {
+  if (currentMusic) {
+    currentMusic.stop();
+    currentMusic = null;
+  }
+};
+
+export const setMusicVolume = (volume: number) => {
+  if (currentMusic) {
+    currentMusic.volume(volume);
+  }
+};
+
+// Add this function to initialize audio context after user interaction
+export const initAudioContext = () => {
+  if (audioContext && audioContext.state === 'suspended') {
+    audioContext.resume();
   }
 };

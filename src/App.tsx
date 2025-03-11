@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Board } from './components/Board';
 import { ControlPanel } from './components/ControlPanel';
 import { MessageBox } from './components/MessageBox';
 import { GameState, Cell, Ship, Attempt, Coordinate } from './types';
 import { playKravenVoice, playSound, stopSound } from './utils/audio';
 import { defaultGameConfig } from './config/gameConfig';
+import { MusicControls } from './components/MusicControls';
 
 function App() {
   const [gameState, setGameState] = useState<GameState>({
@@ -26,7 +27,10 @@ function App() {
     level: 1,
   });
 
-  const getRandomDialogue = (dialogues: string[]) => {
+  const getRandomDialogue = (dialogues: string[] | undefined): string => {
+    if (!dialogues || dialogues.length === 0) {
+      return "..."; // Default message if no dialogues available
+    }
     return dialogues[Math.floor(Math.random() * dialogues.length)];
   };
 
@@ -54,9 +58,10 @@ function App() {
     const levelConfig = defaultGameConfig.levels.find(l => l.id === level) || defaultGameConfig.levels[0];
     const playerShipCount = levelConfig.minShips.player;
     const computerShipCount = levelConfig.minShips.cpu;
+    const { rows, cols } = levelConfig.boardSize;
     
-    const newBoard: Cell[][] = Array(5).fill(null).map(() => 
-      Array(10).fill(null).map(() => ({
+    const newBoard: Cell[][] = Array(rows).fill(null).map(() => 
+      Array(cols).fill(null).map(() => ({
         hasPlayerShip: false,
         hasComputerShip: false,
         isHit: false
@@ -70,8 +75,8 @@ function App() {
       for (let i = 0; i < playerShipCount; i++) {
         let row, col;
         do {
-          row = Math.floor(Math.random() * 5);
-          col = Math.floor(Math.random() * 10);
+          row = Math.floor(Math.random() * rows);
+          col = Math.floor(Math.random() * cols);
         } while (newBoard[row][col].hasPlayerShip);
         
         newBoard[row][col].hasPlayerShip = true;
@@ -81,8 +86,8 @@ function App() {
       for (let i = 0; i < computerShipCount; i++) {
         let row, col;
         do {
-          row = Math.floor(Math.random() * 5);
-          col = Math.floor(Math.random() * 10);
+          row = Math.floor(Math.random() * rows);
+          col = Math.floor(Math.random() * cols);
         } while (newBoard[row][col].hasPlayerShip || newBoard[row][col].hasComputerShip);
         
         newBoard[row][col].hasComputerShip = true;
@@ -135,8 +140,10 @@ function App() {
       await new Promise(resolve => setTimeout(resolve, 1000));
       stopSound('targeting');
 
-      const dialogue = getRandomDialogue(defaultGameConfig.cpu.dialogues!.hit);
-      await playKravenVoice(dialogue);
+      const villainDialogue = getRandomDialogue(defaultGameConfig.cpu.dialogues!.hit);
+      const sidekickDialogue = getRandomDialogue(defaultGameConfig.sidekick.dialogues!.incorrectAnswer!);
+      
+      await playKravenVoice(villainDialogue);
       playSound('hit');
 
       const newAttempts = [...gameState.attempts, { ...targetShip, isPlayerShip: true }];
@@ -159,7 +166,7 @@ function App() {
         await playKravenVoice(victoryDialogue);
         setMessage({
           title: 'Mission Failed',
-          text: victoryDialogue + ` Final score: ${gameState.score}`,
+          text: victoryDialogue + `\n\n${defaultGameConfig.sidekick.name} says: "${sidekickDialogue}"\n\nFinal score: ${gameState.score}`,
           buttonText: 'Retry Sector',
           secondaryButtonText: 'Abort Mission',
           onSecondaryClick: () => initializeBoard(1),
@@ -167,7 +174,7 @@ function App() {
       } else {
         setMessage({
           title: `${defaultGameConfig.cpu.name}'s Turn`,
-          text: dialogue,
+          text: `${villainDialogue}\n\n${defaultGameConfig.sidekick.name} says: "${sidekickDialogue}"`,
           buttonText: 'Continue'
         });
       }
@@ -193,6 +200,8 @@ function App() {
     secondaryButtonText?: string;
     onSecondaryClick?: () => void;
     isLevelUp?: boolean;
+    onClose?: () => void;
+    onShow?: () => void;
   } | null>(null);
 
   const showVictoryMessage = async (newScore: number) => {
@@ -233,11 +242,16 @@ function App() {
 
     const coordinates = findMultiplicationCoordinates(targetNumber);
     if (coordinates.length === 0) {
+      const incorrectDialogue = getRandomDialogue(defaultGameConfig.sidekick.dialogues!.incorrectAnswer!);
       playSound('buttonClick');
+      
       setMessage({
-        title: 'No Valid Targets',
-        text: 'No valid coordinates found in this sector!',
-        buttonText: 'OK'
+        title: `${defaultGameConfig.sidekick.name} says:`,
+        text: incorrectDialogue,
+        buttonText: 'OK',
+        onShow: async () => {
+          await playKravenVoice(incorrectDialogue);
+        }
       });
       return;
     }
@@ -249,7 +263,7 @@ function App() {
     coordinates.forEach(coord => {
       if (!newAttempts.some(a => a.row === coord.row && a.col === coord.col && !a.isPlayerShip)) {
         newAttempts.push({ ...coord, isPlayerShip: false });
-        if (newBoard[coord.row][coord.col].hasComputerShip) {
+        if (newBoard[coord.row]?.[coord.col]?.hasComputerShip) {
           hits++;
           newBoard[coord.row][coord.col].isHit = true;
         }
@@ -277,6 +291,16 @@ function App() {
       return;
     }
 
+    let title, text;
+    
+    const villainDialogue = hits > 0 
+      ? getRandomDialogue(defaultGameConfig.cpu.dialogues!.playerHit!)
+      : getRandomDialogue(defaultGameConfig.cpu.dialogues!.playerMiss!);
+      
+    const sidekickDialogue = hits > 0
+      ? getRandomDialogue(defaultGameConfig.sidekick.dialogues!.correctAnswer!)
+      : getRandomDialogue(defaultGameConfig.sidekick.dialogues!.incorrectAnswer!);
+    
     if (hits > 0) {
       if (hits > 1) {
         playSound('multiHit');
@@ -285,24 +309,35 @@ function App() {
         playSound('hit');
         setTimeout(() => playSound('explosion'), 200);
       }
+      
+      title = `${defaultGameConfig.sidekick.name} cheers:`;
+      text = `${sidekickDialogue}\n\n${defaultGameConfig.cpu.name} growls: "${villainDialogue}"\n\nDestroyed ${hits} Mercada ship${hits > 1 ? 's' : ''} at coordinates ${targetNumber}!`;
     } else {
       playSound('miss');
+      title = `${defaultGameConfig.cpu.name} taunts:`;
+      text = `${villainDialogue}\n\n${defaultGameConfig.sidekick.name} encourages: "${sidekickDialogue}"\n\nNo enemy vessels detected at coordinates ${targetNumber}.`;
     }
 
     const multiHitText = hits > 1 ? ` (${hits}x multiplier for multiple targets!)` : '';
     const levelBonusText = levelMultiplier > 1 ? ` (${levelMultiplier}x level bonus!)` : '';
     
     setMessage({
-      title: hits > 0 ? 'Direct Hit!' : 'Miss',
-      text: hits > 0 
-        ? `Destroyed ${hits} Mercada ship${hits > 1 ? 's' : ''} at coordinates ${targetNumber}${multiHitText}${levelBonusText}`
-        : `No enemy vessels detected at coordinates ${targetNumber}`,
-      buttonText: 'Continue'
+      title: title,
+      text: text + (hits > 0 ? `${multiHitText}${levelBonusText}` : ''),
+      buttonText: 'Continue',
+      onClose: () => {
+        if (!gameEndState.isGameOver) {
+          cpuTurn();
+        }
+      },
+      onShow: async () => {
+        if (hits > 0) {
+          await playKravenVoice(sidekickDialogue);
+        } else {
+          await playKravenVoice(villainDialogue);
+        }
+      }
     });
-
-    if (!gameEndState.isGameOver) {
-      setTimeout(cpuTurn, 1500);
-    }
   };
 
   const handleClear = () => {
@@ -359,6 +394,7 @@ function App() {
           gameState={gameState}
           onCellSelect={() => {}}
         />
+        <MusicControls tracks={defaultGameConfig.music} />
         <ControlPanel
           gameState={gameState}
           onNumpadInput={handleNumpadInput}
@@ -381,8 +417,10 @@ function App() {
             } else if (message.isLevelUp) {
               initializeBoard(gameState.level + 1);
             }
+            message.onClose?.();
           }}
           onSecondaryClick={message.onSecondaryClick}
+          onShow={message.onShow}
         />
       )}
     </div>

@@ -24,21 +24,25 @@ export const Board: React.FC<BoardProps> = ({ gameState }) => {
     )
   ).length;
 
+  // Get current level configuration
+  const currentLevel = defaultGameConfig.levels.find(l => l.id === gameState.level) || defaultGameConfig.levels[0];
+  const { rows, cols } = currentLevel.boardSize;
+
   return (
     <div className="relative p-4 flex-1 flex flex-col">
-      <div className="text-center text-white text-7xl mb-6 font-bold shadow-text animate-slide-down bg-black/30 py-4 rounded-xl backdrop-blur-sm">
+      <div className="text-center text-white text-8xl mb-6 font-bold shadow-text animate-slide-down bg-black/30 py-4 rounded-xl backdrop-blur-sm">
         Multiplication Battleship
       </div>
-      <div className="text-center mb-6 text-white text-3xl animate-slide-up bg-black/30 py-3 rounded-xl backdrop-blur-sm">
+      <div className="text-center mb-6 text-white text-4xl animate-slide-up bg-black/30 py-3 rounded-xl backdrop-blur-sm">
         Enter a number to fire at all coordinates that multiply to make it!
       </div>
       
       <div className="flex-1 flex items-center justify-center">
         <div className="flex flex-col bg-black/40 p-6 rounded-3xl backdrop-blur-sm">
-          {/* Column numbers (1-10) */}
+          {/* Column numbers (1-cols) */}
           <div className="flex">
             <div className="w-24 h-24" /> {/* Empty corner cell */}
-            {Array(10).fill(null).map((_, i) => (
+            {Array(cols).fill(null).map((_, i) => (
               <div 
                 key={`col-${i}`} 
                 className="w-24 h-24 flex items-center justify-center font-bold text-4xl text-white shadow-text"
@@ -48,11 +52,11 @@ export const Board: React.FC<BoardProps> = ({ gameState }) => {
             ))}
           </div>
 
-          {/* Grid with row numbers (1-5) */}
+          {/* Grid with row numbers (1-rows) */}
           <div className="flex">
             {/* Row numbers */}
             <div className="flex flex-col">
-              {Array(5).fill(null).map((_, i) => (
+              {Array(rows).fill(null).map((_, i) => (
                 <div 
                   key={`row-${i}`} 
                   className="w-24 h-24 flex items-center justify-center font-bold text-4xl text-white shadow-text"
@@ -63,9 +67,14 @@ export const Board: React.FC<BoardProps> = ({ gameState }) => {
             </div>
 
             {/* Game grid */}
-            <div className="grid grid-rows-5 grid-cols-10 gap-[2px]">
-              {gameState.board.map((row, rowIndex) => (
-                row.map((cell, colIndex) => {
+            <div className={`grid grid-rows-${rows} grid-cols-${cols} gap-[2px]`} 
+                 style={{ 
+                   display: 'grid', 
+                   gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+                   gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`
+                 }}>
+              {gameState.board.slice(0, rows).map((row, rowIndex) => (
+                row.slice(0, cols).map((cell, colIndex) => {
                   const playerShip = gameState.playerShips.find(ship => 
                     ship.row === rowIndex && ship.col === colIndex
                   );
@@ -123,10 +132,10 @@ export const Board: React.FC<BoardProps> = ({ gameState }) => {
       </div>
 
       <div className="mt-6 flex justify-between items-center px-8">
-        <div className="font-bold text-white text-4xl text-center shadow-text bg-black/30 px-8 py-4 rounded-xl backdrop-blur-sm">
+        <div className="font-bold text-white text-5xl text-center shadow-text bg-black/30 px-8 py-4 rounded-xl backdrop-blur-sm">
           {defaultGameConfig.player.name}'s ships: {remainingPlayerShips}
         </div>
-        <div className="font-bold text-white text-4xl text-center shadow-text bg-black/30 px-8 py-4 rounded-xl backdrop-blur-sm">
+        <div className="font-bold text-white text-5xl text-center shadow-text bg-black/30 px-8 py-4 rounded-xl backdrop-blur-sm">
           {defaultGameConfig.cpu.name}'s ships: {remainingComputerShips}
         </div>
       </div>
