@@ -78,24 +78,24 @@ export const MusicControls: React.FC<MusicControlsProps> = ({ tracks }) => {
     }
   };
 
-  // Array of music icons to use for each track
+  // Array of music icons to use for each track with increased size
   const musicIcons = [
-    <Music2 size={24} key="music-icon-1" />,
-    <Music3 size={24} key="music-icon-2" />,
-    <Music4 size={24} key="music-icon-3" />
+    <Music2 size={40} key="music-icon-1" />,
+    <Music3 size={40} key="music-icon-2" />,
+    <Music4 size={40} key="music-icon-3" />
   ];
 
   return (
-    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/70 backdrop-blur-sm p-4 rounded-xl z-10 text-white flex flex-col gap-2">
+    <div className="absolute left-6 top-1/2 transform -translate-y-1/2 bg-black/70 backdrop-blur-sm p-6 rounded-2xl z-10 text-white flex flex-col gap-5 shadow-xl border border-white/10">
       {tracks.map((track, index) => (
         <button
           key={track.id}
           onClick={() => handleTrackSelect(track.id)}
-          className={`p-3 rounded-full transition-all ${
+          className={`p-5 rounded-xl transition-all ${
             currentTrackId === track.id 
-              ? 'bg-white/30 text-white' 
+              ? 'bg-white/30 text-white shadow-inner' 
               : 'bg-black/50 text-gray-300 hover:bg-black/70'
-          }`}
+          } hover:scale-105 active:scale-95 transform`}
         >
           {musicIcons[index]}
         </button>
@@ -103,9 +103,9 @@ export const MusicControls: React.FC<MusicControlsProps> = ({ tracks }) => {
 
       <button
         onClick={togglePlayStop}
-        className="p-3 rounded-full bg-black/50 text-gray-300 hover:bg-black/70 transition-all"
+        className="p-5 rounded-xl bg-black/50 text-gray-300 hover:bg-black/70 transition-all hover:scale-105 active:scale-95 transform mt-2"
       >
-        {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+        {isPlaying ? <Pause size={40} /> : <Play size={40} />}
       </button>
     </div>
   );

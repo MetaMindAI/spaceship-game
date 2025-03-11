@@ -32,18 +32,34 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   return (
     <div className="w-[500px] bg-black/60 backdrop-blur-sm p-8 flex flex-col items-center rounded-r-3xl">
       <div className="flex justify-around w-full mb-8">
-        <div 
-          className="w-32 h-32 rounded-xl flex items-center justify-center text-white font-bold text-4xl shadow-lg transform transition-transform hover:scale-105 bg-opacity-80 backdrop-blur-sm"
-          style={{ backgroundColor: defaultGameConfig.player.color }}
-        >
-          {defaultGameConfig.player.name}
+        <div className="flex flex-col items-center">
+          <div 
+            className="w-32 h-32 rounded-xl flex items-center justify-center overflow-hidden shadow-lg transform transition-transform hover:scale-105 mb-2"
+            style={{ backgroundColor: defaultGameConfig.player.color }}
+          >
+            <img 
+              src={defaultGameConfig.player.assetUrl} 
+              alt={defaultGameConfig.player.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="text-white font-bold text-xl">{defaultGameConfig.player.name}</div>
         </div>
+        
         <div className="flex items-center font-bold text-6xl text-white shadow-text">VS</div>
-        <div 
-          className="w-32 h-32 rounded-xl flex items-center justify-center text-white font-bold text-4xl shadow-lg transform transition-transform hover:scale-105 bg-opacity-80 backdrop-blur-sm"
-          style={{ backgroundColor: defaultGameConfig.cpu.color }}
-        >
-          {defaultGameConfig.cpu.name}
+        
+        <div className="flex flex-col items-center">
+          <div 
+            className="w-32 h-32 rounded-xl flex items-center justify-center overflow-hidden shadow-lg transform transition-transform hover:scale-105 mb-2"
+            style={{ backgroundColor: defaultGameConfig.cpu.color }}
+          >
+            <img 
+              src={defaultGameConfig.cpu.assetUrl} 
+              alt={defaultGameConfig.cpu.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="text-white font-bold text-xl">{defaultGameConfig.cpu.name}</div>
         </div>
       </div>
 
